@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/grvaishali/tinyapp/issues"
   },
-  "homepage": "https://github.com/grvaishali/tinyapp#readme"
+  "homepage": "https://github.com/grvaishali/tinyapp#readme",
+  "dependencies": {
+    "espress": "0.0.0"
+  }
 }
