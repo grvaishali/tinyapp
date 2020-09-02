@@ -1,10 +1,10 @@
 const express = require("express");
+const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080;
 
 app.set("view engine", "ejs");
 
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const urlDatabase = {
@@ -46,10 +46,17 @@ app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
-
+shortURL = generateRandomString();
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase
+  const longURL = urlDatabase.b2xVn2
   res.redirect(longURL);
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  delete urlDatabase.b2xVn2
+  res.send("delete")
+  console.log("delete")
+  res.redirect("http://localhost:8080/urls");
 });
 
 function generateRandomString() {
