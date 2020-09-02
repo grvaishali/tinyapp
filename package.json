@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/grvaishali/tinyapp#readme",
   "dependencies": {
-    "espress": "0.0.0"
+    "ejs": "^3.1.5",
+    "espress": "0.0.0",
+    "express": "^4.17.1"
   }
 }
