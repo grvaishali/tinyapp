@@ -3,14 +3,14 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session')
 const cookieParser = require('cookie-parser')
 
- const app = express();
- const PORT = 8080;
+const app = express();
+const PORT = 8080;
 
 app.set("view engine", "ejs");
 
- app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
- app.use(cookieSession({
+app.use(cookieSession({
   name: 'user_id',
   keys: ['iamasuperkeyandilikesongs', 'pouet pouet yes spaces are okay why not']
 }))
@@ -21,15 +21,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+let users = {
   "userRandomID": {
-    id: "1", 
-    email: "user@example.com", 
+    id: "1",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "2", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "2",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 }
@@ -64,9 +64,17 @@ app.get("/urls", (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const {email, password } = req.body
-  users[generateRandomString()] = {email, password}
-//const hashedPassword = bcrypt.hashSync(password, salt);
+  const { email, password } = req.body
+  if (email == "" || password == "") {
+    res.status(400).send('Email and password can not be empty')
+  }
+
+  if (lookUp(email) === 400) {
+    res.status(400).send('User name already exist')
+  }
+
+  users[generateRandomString()] = { email, password }
+  //const hashedPassword = bcrypt.hashSync(password, salt);
   req.session.userId = users
   console.log(users)
   res.redirect('/urls')
@@ -102,4 +110,13 @@ function generateRandomString() {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+}
+
+function lookUp(user) {
+  for (let key of Object.keys(users)) {
+    if (users[key].email === user) {
+      return 400;
+    }
+  }
+
 }
