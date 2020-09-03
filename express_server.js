@@ -1,16 +1,38 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const app = express();
-const PORT = 8080;
+const cookieSession = require('cookie-session')
+const cookieParser = require('cookie-parser')
+
+ const app = express();
+ const PORT = 8080;
 
 app.set("view engine", "ejs");
 
-app.use(bodyParser.urlencoded({ extended: true }));
+ app.use(bodyParser.urlencoded({ extended: true }));
+
+ app.use(cookieSession({
+  name: 'user_id',
+  keys: ['iamasuperkeyandilikesongs', 'pouet pouet yes spaces are okay why not']
+}))
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = { 
+  "userRandomID": {
+    id: "1", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "2", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -40,6 +62,15 @@ app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+app.post('/register', (req, res) => {
+  const {email, password } = req.body
+  users[generateRandomString()] = {email, password}
+//const hashedPassword = bcrypt.hashSync(password, salt);
+  req.session.userId = users
+  console.log(users)
+  res.redirect('/urls')
+})
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase };
