@@ -12,12 +12,12 @@
 </head>
 
 <body>
-  <%- include('partials/_header') %>
+  <%- include('partials/_headerMain') %>
 
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <form method="POST" action="/urls/:shortURL>check</form>
-    <table class=" table">
+    <form method="POST" action="/urls/:shortURL>
+    <table class="table">
       <thead>
         <tr>
           <th scope="col">Short URL</th>
@@ -37,8 +37,10 @@
         </tr>
         <% } %>
       </tbody>
-      </table>
+    </table>
+  </form>
   </main>
+
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

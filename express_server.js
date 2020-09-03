@@ -2,9 +2,12 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session')
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = 8080;
+const salt = bcrypt.genSaltSync(10);
+const pwd = bcrypt.hashSync("pockpock", salt);
 
 app.set("view engine", "ejs");
 
@@ -21,7 +24,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-let users = {
+const users = {
   "userRandomID": {
     id: "1",
     email: "user@example.com",
@@ -33,6 +36,8 @@ let users = {
     password: "dishwasher-funk"
   }
 }
+
+let loggedInUser = false;
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -59,24 +64,27 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+
+  let templateVars = { urls: urlDatabase, currentUser: loggedInUser };
   res.render("urls_index", templateVars);
 });
 
+// REGISTER
 app.post('/register', (req, res) => {
   const { email, password } = req.body
   if (email == "" || password == "") {
     res.status(400).send('Email and password can not be empty')
   }
-
-  if (lookUp(email) === 400) {
+  if (lookUp(email, password) === 400) {
     res.status(400).send('User name already exist')
   }
 
-  users[generateRandomString()] = { email, password }
+  const hashedPassword = bcrypt.hashSync(password, salt);
+  users[generateRandomString()] = { email, hashedPassword }
   //const hashedPassword = bcrypt.hashSync(password, salt);
   req.session.userId = users
   console.log(users)
+  loggedInUser = true
   res.redirect('/urls')
 })
 
@@ -86,6 +94,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
@@ -102,6 +111,29 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("http://localhost:8080/urls");
 });
 
+//LOGIN
+app.get('/login', (req, res) => {
+  res.render('urls_login')
+})
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body
+  let templateVars = {currentUser: loggedInUser };
+  const hashedPassword = bcrypt.hashSync(password, salt);
+  console.log(hashedPassword);
+  if (checkCredentials(email, hashedPassword) === 200) {
+    loggedInUser = true;
+    res.cookie('userId', email)
+    req.session.userId = email
+    loggedIn = true;
+    res.redirect('/urls')
+
+  } else {
+    res.send("BAD JOB")
+  }
+
+})
+
 function generateRandomString() {
   var result = '';
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -112,11 +144,27 @@ function generateRandomString() {
   return result;
 }
 
-function lookUp(user) {
+function lookUp(user, password) {
   for (let key of Object.keys(users)) {
     if (users[key].email === user) {
       return 400;
     }
-  }
+    if (users[key].password === password && users[key].email === user) {
+      return 200;
+    }
 
+  }
+}
+
+
+function checkCredentials(user, password) {
+  for (let key of Object.keys(users)) {
+    console.log(users[key])
+    console.log(users[key].email === user)
+    console.log(users[key].hashedPassword === password)
+    if (users[key].hashedPassword === password && users[key].email === user) {
+      return 200;
+    }
+  }
+  return 400;
 }
