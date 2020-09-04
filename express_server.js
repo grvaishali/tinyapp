@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session')
-const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 
 const app = express();
@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'user_id',
   keys: ['iamasuperkeyandilikesongs', 'pouet pouet yes spaces are okay why not']
-}))
+}));
 
 
 const urlDatabase = {
@@ -35,7 +35,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -56,20 +56,20 @@ app.get("/register", (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.body;
   if (email == "" || password == "") {
-    res.status(400).send('Email and password can not be empty')
+    res.status(400).send('Email and password can not be empty');
   }
   if (lookUp(email, password) === 400) {
-    res.status(400).send('User name already exist')
+    res.status(400).send('User name already exist');
   }
 
   const newUserId = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, salt);
-  users[newUserId] = { email, hashedPassword }
+  users[newUserId] = { email, hashedPassword };
   req.session.user_id = newUserId;
-  res.redirect('/urls')
-})
+  res.redirect('/urls');
+});
 
 //URLS
 app.get("/urls", (req, res) => {
@@ -109,40 +109,38 @@ app.post("/urls", (req, res) => {
 });
 shortURL = generateRandomString();
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase.b2xVn2
+  const longURL = urlDatabase.b2xVn2;
   res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  delete urlDatabase.b2xVn2
-  res.send("delete")
+  delete urlDatabase.b2xVn2;
+  res.send("delete");
   res.redirect("http://localhost:8080/urls");
 });
 
 //LOGIN
 app.get('/login', (req, res) => {
-  res.render('urls_login')
-})
+  res.render('urls_login');
+});
 
 app.post('/login', (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, salt);
   if (checkUsername(email) === 200) {
     if (checkCredentials(email, hashedPassword) === 200) {
       req.session.user_id = getUserId(email);
-      res.redirect('/urls')
-    }
-    else {
+      res.redirect('/urls');
+    } else {
       res.status(403);
       res.send('Password incorrect');
     }
-  }
-  else {
+  } else {
     res.status(403);
     res.send('No user with that email address exists');
   }
 
-})
+});
 
 //LOGOUT
 app.get('/logout', (req, res) => {
@@ -152,10 +150,10 @@ app.get('/logout', (req, res) => {
 
 //HELPER FUNCTIONS
 function generateRandomString() {
-  var result = '';
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for (var i = 0; i < 6; i++) {
+  let result = '';
+  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charactersLength = characters.length;
+  for (let i = 0; i < 6; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
