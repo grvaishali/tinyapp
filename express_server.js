@@ -37,39 +37,24 @@ const users = {
   }
 }
 
-let loggedInUser = false;
-
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+//HOME
+app.get("/", (req, res) => {
+  res.send("Hello!");
 });
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
+// REGISTER
 app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
-app.get("/urls", (req, res) => {
-
-  let templateVars = { urls: urlDatabase, currentUser: loggedInUser };
-  res.render("urls_index", templateVars);
-});
-
-// REGISTER
 app.post('/register', (req, res) => {
   const { email, password } = req.body
   if (email == "" || password == "") {
@@ -79,14 +64,27 @@ app.post('/register', (req, res) => {
     res.status(400).send('User name already exist')
   }
 
+  const newUserId = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, salt);
-  users[generateRandomString()] = { email, hashedPassword }
-  //const hashedPassword = bcrypt.hashSync(password, salt);
-  req.session.userId = users
-  console.log(users)
-  loggedInUser = true
+  users[newUserId] = { email, hashedPassword }
+  req.session.user_id = newUserId;
   res.redirect('/urls')
 })
+
+//URLS
+app.get("/urls", (req, res) => {
+  let templateVars = { urls: urlDatabase, currentUser: req.session.user_id !== undefined };
+  res.render("urls_index", templateVars);
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase };
@@ -94,8 +92,6 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-
-  console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 shortURL = generateRandomString();
@@ -107,7 +103,6 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   delete urlDatabase.b2xVn2
   res.send("delete")
-  console.log("delete")
   res.redirect("http://localhost:8080/urls");
 });
 
@@ -118,22 +113,31 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body
-  let templateVars = {currentUser: loggedInUser };
   const hashedPassword = bcrypt.hashSync(password, salt);
-  console.log(hashedPassword);
-  if (checkCredentials(email, hashedPassword) === 200) {
-    loggedInUser = true;
-    res.cookie('userId', email)
-    req.session.userId = email
-    loggedIn = true;
-    res.redirect('/urls')
-
-  } else {
-    res.send("BAD JOB")
+  if (checkUsername(email) === 200) {
+    if (checkCredentials(email, hashedPassword) === 200) {
+      req.session.user_id = getUserId(email);
+      res.redirect('/urls')
+    }
+    else {
+      res.status(403);
+      res.send('Password incorrect');
+    }
+  }
+  else {
+    res.status(403);
+    res.send('No user with that email address exists');
   }
 
 })
 
+//LOGOUT
+app.get('/logout', (req, res) => {
+  req.session.user_id = undefined;
+  res.redirect('/urls');
+});
+
+//HELPER FUNCTIONS
 function generateRandomString() {
   var result = '';
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -156,15 +160,30 @@ function lookUp(user, password) {
   }
 }
 
-
 function checkCredentials(user, password) {
   for (let key of Object.keys(users)) {
-    console.log(users[key])
-    console.log(users[key].email === user)
-    console.log(users[key].hashedPassword === password)
     if (users[key].hashedPassword === password && users[key].email === user) {
       return 200;
     }
   }
   return 400;
 }
+
+function checkUsername(user) {
+  for (let key of Object.keys(users)) {
+    if (users[key].email === user) {
+      return 200;
+    }
+  }
+  return 400;
+}
+
+function getUserId(email) {
+  for (let key of Object.keys(users)) {
+    if (users[key].email === user) {
+      return key;
+    }
+  }
+  return undefined;
+}
+
