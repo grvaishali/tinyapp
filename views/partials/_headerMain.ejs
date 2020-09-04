@@ -7,17 +7,18 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-<u1>
-        <% if (!currentUser){ %>
-        <a class="nav-item nav-link" href="/login">Login</a>
-        <a class="nav-item nav-link" href="/register">Register</a>
-        <%  } else { %>
-        <a class="nav-item nav-link" href="/logout">Logout</a>
-        <%  } %>
-
-</u1>
-
+        <a class="nav-item nav-link" href="/urls">My URLs</a>
+        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <span class="navbar-text">
+      <% if (!currentUser){ %>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+      <%  } else { %>
+      <span>Logged In As: <%= email %> </span>  
+      <a class="btn btn-outline-secondary" href="/logout">Logout</a>
+      <%  } %>
+    </span>
   </nav>
 </header>

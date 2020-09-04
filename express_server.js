@@ -73,7 +73,13 @@ app.post('/register', (req, res) => {
 
 //URLS
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, currentUser: req.session.user_id !== undefined };
+  let email = '';
+  let currentUser = false;
+  if (req.session.user_id !== undefined && users[req.session.user_id] !== undefined) {
+    email = users[req.session.user_id].email;
+    currentUser = true;
+  }
+  let templateVars = { urls: urlDatabase, email: email, currentUser: currentUser };
   res.render("urls_index", templateVars);
 });
 
@@ -82,7 +88,14 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let email = '';
+  let currentUser = false;
+  if (req.session.user_id !== undefined && users[req.session.user_id] !== undefined) {
+    email = users[req.session.user_id].email;
+    currentUser = true;
+  }
+  let templateVars = { email: email, currentUser: currentUser };
+  res.render("urls_new", templateVars);
 });
 
 
@@ -180,7 +193,7 @@ function checkUsername(user) {
 
 function getUserId(email) {
   for (let key of Object.keys(users)) {
-    if (users[key].email === user) {
+    if (users[key].email === email) {
       return key;
     }
   }

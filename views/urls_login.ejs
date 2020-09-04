@@ -13,26 +13,26 @@
 
 <body>
   <%- include('partials/_header') %>
-  <form class="form-inline" action="/login" method="POST">
-
-    <div class="card text-center">
-
-      <div class="Component-label-0-2-16">Username</div>
-      <div class="ui fluid transparent input  Component-input-0-2-18">
-        <input aria-label="Username" placeholder="Work email address or username" name="email" type="email"></div>
-
-      <div class="Component-root-0-2-13   ">
-        <div class="Component-label-0-2-16">Password</div>
-        <div class="ui fluid transparent input  Component-input-0-2-18"><input aria-label="Password"
-            placeholder="Enter your password" name="password" type="password"></div>
+  <form action="/login" method="POST">
+    <div class="container">
+      <h2>Login</h2>
+      <div class="form-group">
+        <label for="email" class="col-sm-2 col-form-label">Username</label>
+        <div>
+          <input aria-label="Username" class="form-control" placeholder="Work email address or username" name="email"
+            type="email">
+        </div>
       </div>
+      <div class="form-group">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div>
+          <input aria-label="Password" class="form-control" placeholder="Enter your password" name="password"
+            type="password">
+        </div>
+      </div>
+      <button class="btn btn-primary" type="Login"> Login </button>
     </div>
-
-    <div class="Component-root-0-2-13 ">
-      <button type="Login"> Login </button>
     </div>
-    </div>
-
   </form>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
