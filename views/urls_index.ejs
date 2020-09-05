@@ -16,7 +16,6 @@
 
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <form method="POST" action="/urls/:shortURL">
     <table class="table">
       <thead>
         <tr>
@@ -29,16 +28,21 @@
         <% for(let url in urls) { %>
         <tr>
           <td><%= url %></td>
-          <td><%= urls[url] %></td>
+          <td><%= urls[url].longURL %></td>
 
-          <td> <button type="delete" class="btn btn-primary" style=" color: #dc3545;
-             background-color: #f8f9fa05;
-             border-color: #dc3545">Delete</button> </td>
+          <td>
+            <form method="POST" action="/urls/<%= url %>" enctype="application/x-www-form-urlencoded">
+              <input type="hidden" name="_method" value="DELETE">
+              <a href="/urls/<%= url %>" class="btn btn-primary">Edit</a>
+              <button name="Delete" type="submit" value="delete" class="btn btn-danger">
+                Delete
+              </button>
+            </form>
+          </td>
         </tr>
         <% } %>
       </tbody>
     </table>
-  </form>
   </main>
 
   <!-- Bootstrap JS -->
